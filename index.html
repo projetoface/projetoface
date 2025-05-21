@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Account Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .card { border: 1px solid #ccc; border-radius: 5px; padding: 20px; margin-bottom: 20px; }
+        .input { padding: 10px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        .button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Adicionar Conta</h2>
+        <input id="email" class="input" type="text" placeholder="Email">
+        <input id="password" class="input" type="password" placeholder="Senha">
+        <button class="button" onclick="addAccount()">Adicionar</button>
+    </div>
+    <div class="card">
+        <h2>Contas Cadastradas</h2>
+        <div id="accounts"></div>
+    </div>
+    <script>
+        const accountsDiv = document.getElementById('accounts');
+
+        async function addAccount() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            if (!email || !password) {
+                alert('Preencha todos os campos');
+                return;
+            }
+            try {
+                const res = await fetch('http://localhost:5000/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    const accountDiv = document.createElement('div');
+                    accountDiv.textContent = `${data.email} — ${data.status || 'Sem status'}`;
+                    accountsDiv.appendChild(accountDiv);
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    alert('Conta adicionada!');
+                } else {
+                    alert(data.error || 'Erro ao adicionar.');
+                }
+            } catch (err) {
+                alert('Erro na conexão.');
+            }
+        }
+    </script>
+</body>
+</html>
